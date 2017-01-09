@@ -73,14 +73,18 @@
 #   The ssl cipher used. Cipher is used from this website:
 #   https://wiki.mozilla.org/Security/Server_Side_TLS
 #
-# [*apache_ssl_chain*}
+# [*apache_ssl_chain*]
 #   The ssl chain file.
 #
-# [*apache_listenport*}
+# [*apache_listenport*]
 #   The port for the apache vhost.
 #
-# [*apache_listenport_ssl*}
+# [*apache_listenport_ssl*]
 #   The port for the apache SSL vhost.
+#
+# [*apache_custom_rewrites*]
+#   Specify an array of rewrites that should be in the virtual host.
+#   If follows the puppetlabs-apache syntax
 #
 # [*zabbix_api_user*]
 #   Name of the user which the api should connect to. Default: Admin
@@ -198,6 +202,7 @@ class zabbix::web (
   $apache_listen_ip                         = $zabbix::params::apache_listen_ip,
   $apache_listenport                        = $zabbix::params::apache_listenport,
   $apache_listenport_ssl                    = $zabbix::params::apache_listenport_ssl,
+  $apache_custom_rewrites                   = $zabbix::params::apache_custom_rewrites,
   $zabbix_api_user                          = $zabbix::params::server_api_user,
   $zabbix_api_pass                          = $zabbix::params::server_api_pass,
   $database_host                            = $zabbix::params::server_database_host,
@@ -449,10 +454,10 @@ class zabbix::web (
    php_value max_input_vars ${apache_php_max_input_vars}
    # Set correct timezone
    php_value date.timezone ${zabbix_timezone}",
-      rewrites        => [
+      rewrites        => union([
         {
           rewrite_rule => ['^$ /index.php [L]'] }
-      ],
+      ], $apache_custom_rewrites),
       ssl             => $apache_use_ssl,
       ssl_cert        => $apache_ssl_cert,
       ssl_key         => $apache_ssl_key,
