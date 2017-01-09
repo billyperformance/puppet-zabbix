@@ -394,13 +394,13 @@ class zabbix::web (
         port           => $apache_listenport,
         servername     => $zabbix_url,
         ssl            => false,
-        rewrites       => [
+        rewrites       => union($apache_custom_rewrites,[
           {
             comment      => 'redirect all to https',
             rewrite_cond => ['%{SERVER_PORT} !^443$'],
             rewrite_rule => ["^/(.*)$ https://${zabbix_url}/\$1 [L,R]"],
           }
-        ],
+        ]),
       }
     } else {
       # So no ssl, so default port 80
@@ -454,10 +454,10 @@ class zabbix::web (
    php_value max_input_vars ${apache_php_max_input_vars}
    # Set correct timezone
    php_value date.timezone ${zabbix_timezone}",
-      rewrites        => union($apache_custom_rewrites, [
+      rewrites        => [
         {
           rewrite_rule => ['^$ /index.php [L]'] }
-      ]),
+      ],
       ssl             => $apache_use_ssl,
       ssl_cert        => $apache_ssl_cert,
       ssl_key         => $apache_ssl_key,
