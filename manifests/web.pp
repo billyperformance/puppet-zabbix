@@ -454,10 +454,10 @@ class zabbix::web (
    php_value max_input_vars ${apache_php_max_input_vars}
    # Set correct timezone
    php_value date.timezone ${zabbix_timezone}",
-      rewrites        => union([
+      rewrites        => union($apache_custom_rewrites, [
         {
           rewrite_rule => ['^$ /index.php [L]'] }
-      ], $apache_custom_rewrites),
+      ]),
       ssl             => $apache_use_ssl,
       ssl_cert        => $apache_ssl_cert,
       ssl_key         => $apache_ssl_key,
